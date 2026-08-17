@@ -10,7 +10,15 @@ const SHELL = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
+  e.waitUntil(
+    caches.open(CACHE).then((cache) =>
+      Promise.all(
+        SHELL.map((url) =>
+          cache.add(url).catch((err) => console.warn("SW cache skip:", url, err))
+        )
+      )
+    )
+  );
   self.skipWaiting();
 });
 
