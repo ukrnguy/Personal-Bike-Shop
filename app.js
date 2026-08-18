@@ -87,7 +87,62 @@ function compressImage(file, maxDim = 800, quality = 0.55) {
 }
 
 const EMPTY_BIKE = { name: "", brand: "", frameSize: "", mileage: 0, purchaseDate: "", purchasePrice: "", warranty: "", notes: "" };
+
+const SEED_BIKE = {
+  name: "Prologue Britannia",
+  brand: "Prologue Britannia CX",
+  frameSize: "58",
+  mileage: 0,
+  purchaseDate: "",
+  purchasePrice: "",
+  warranty: "",
+  notes: "Self-built from a shop-provided frame. 100% Toray carbon, UD weave. BSA-68mm threaded BB, flat mount brakes, 1-1/8\"\u20131-1/2\" tapered integrated headset. Thru-axles: F 12x100mm or 15x100mm, R 12x142mm. Seatpost 27.2mm, clamp 31.8mm. Cables exit the front of the frame and run externally into the shifters under the bar tape (not fully internal).",
+};
+
+function seedPart(typeId, label, brand, extra = {}) {
+  const t = typeOf(typeId);
+  return {
+    id: uid(), typeId, cat: t.cat, label, brand,
+    wearTracked: t.wear, intervalKm: t.km, installMileage: 0,
+    installDate: today(), cost: 0, weight: 0, purchaseDate: "",
+    ...extra,
+  };
+}
+
+const SEED_PARTS = [
+  seedPart("chain", "Chain", "Shimano Deore, 12-speed"),
+  seedPart("cassette", "Cassette", "Shimano 105, 11-34T"),
+  seedPart("chainrings", "Chainrings", "Shimano 105, 52/36T"),
+  seedPart("crankset", "Crankset", "Shimano 105, 172.5mm"),
+  seedPart("bb", "Bottom bracket", "Shimano BBR60, English/BSA-68mm"),
+  seedPart("fd", "Front derailleur", "Shimano 105 R7100 mechanical"),
+  seedPart("rd", "Rear derailleur", "Shimano 105 R7100 mechanical"),
+  seedPart("shiftcable", "Shift cables & housing", "Shimano"),
+  seedPart("pedals", "Pedals", "Shimano 105"),
+  seedPart("calipers", "Brake calipers", "Shimano 105, hydraulic disc"),
+  seedPart("pads_f", "Brake pads (front)", "Shimano L05A"),
+  seedPart("pads_r", "Brake pads (rear)", "Shimano L05A"),
+  seedPart("rotor_f", "Rotor (front)", "Shimano 105"),
+  seedPart("rotor_r", "Rotor (rear)", "Shimano 105"),
+  seedPart("brakecable", "Brake cables & housing (hydraulic)", "Shimano"),
+  seedPart("hub_f", "Front hub", "RHUS"),
+  seedPart("hub_r", "Rear hub", "RHUS"),
+  seedPart("wheel_f", "Front wheel", "RHUS, 45mm carbon, 24 flat spokes"),
+  seedPart("wheel_r", "Rear wheel", "RHUS, 45mm carbon, 24 flat spokes"),
+  seedPart("tire_f", "Tire (front)", "Pirelli P Zero Race TLR, 32c"),
+  seedPart("tire_r", "Tire (rear)", "Pirelli P Zero Race TLR, 32c"),
+  seedPart("tube", "Tubes", "25-30C, 60mm butyl valve"),
+  seedPart("axle", "Thru-axles", "F 12x100/15x100mm, R 12x142mm"),
+  seedPart("bar", "Handlebar", "Carbon (integrated w/ stem)"),
+  seedPart("stem", "Stem", "Carbon (integrated w/ bar)"),
+  seedPart("headset", "Headset", "Integrated, 1-1/8\"\u20131-1/2\" tapered"),
+  seedPart("bartape", "Bar tape", "Zipp Course Service"),
+  seedPart("seatpost", "Seatpost", "Carbon, 27.2mm"),
+  seedPart("saddle", "Saddle", "Selle Italia Novus Boost TLM, 145mm"),
+];
+
 const EMPTY = { bike: EMPTY_BIKE, parts: [], logs: [] };
+const SEEDED = { bike: SEED_BIKE, parts: SEED_PARTS, logs: [] };
 
 function Garage() {
   const [data, setData] = useState(null);
@@ -113,8 +168,8 @@ function Garage() {
     (async () => {
       try {
         const res = await window.storage.get("garage_v1", false);
-        setData(res ? JSON.parse(res.value) : EMPTY);
-      } catch { setData(EMPTY); }
+        setData(res ? JSON.parse(res.value) : SEEDED);
+      } catch { setData(SEEDED); }
     })();
   }, []);
 
